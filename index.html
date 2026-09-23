@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>陪禹长大 · 奶绿养成系</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      /* 清新的奶绿色基调 */
+      background: linear-gradient(145deg, #d8f0d0 0%, #c2e8b8 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+      padding: 16px;
+    }
+
+    .game-container {
+      max-width: 700px;
+      width: 100%;
+      /* 奶白偏绿的半透明卡片 */
+      background: rgba(248, 255, 242, 0.88);
+      backdrop-filter: blur(12px);
+      border-radius: 42px;
+      box-shadow: 0 20px 40px rgba(100, 140, 80, 0.2), 0 4px 12px rgba(0, 0, 0, 0.03);
+      padding: 28px 26px 34px;
+      border: 1px solid #e2f0d8;
+      transition: all 0.2s;
+    }
+
+    /* 头部 ID + 头像 — 奶绿调 */
+    .player-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+      background: #f4fcef;
+      padding: 14px 20px;
+      border-radius: 100px;
+      box-shadow: inset 0 1px 4px #ffffff, 0 6px 12px rgba(120, 160, 100, 0.12);
+      border: 1px solid #d2e8c6;
+    }
+
+    .avatar-frame {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #d4ecc8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(100, 140, 80, 0.2);
+      border: 3px solid #ffffff;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #d4ecc8;
+      font-size: 40px;
+      line-height: 64px;
+      text-align: center;
+      color: #4a6e3a;
+    }
+
+    .id-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .id-label {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: #7a9e6a;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .id-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2e4a22;
+      background: #e8f6e0;
+      padding: 2px 12px;
+      border-radius: 40px;
+      display: inline-block;
+      align-self: flex-start;
+      margin-top: 4px;
+      border: 1px solid #c8e0b8;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    /* 故事区域 — 奶白绿 */
+    .story-panel {
+      background: #fbfff7;
+      border-radius: 32px;
+      padding: 22px 22px 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 20px rgba(120, 160, 100, 0.08), inset 0 1px 0 #ffffff;
+      border: 1px solid #dcecd0;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .story-text {
+      font-size: 17px;
+      line-height: 1.6;
+      color: #2f4526;
+      white-space: pre-wrap;
+      word-break: break-word;
+      letter-spacing: 0.2px;
+      font-weight: 400;
+      flex: 1;
+    }
+
+    .story-text p {
+      margin-bottom: 12px;
+    }
+
+    .story-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* 选项按钮 — 奶绿 */
+    .choices-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .choice-btn {
+      background: #f4fcef;
+      border: 1.5px solid #b8d8a8;
+      border-radius: 60px;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #2e4a22;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 6px rgba(120, 160, 100, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .choice-btn:hover {
+      background: #e2f2d8;
+      border-color: #98c488;
+      box-shadow: 0 6px 12px rgba(100, 140, 80, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .choice-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .choice-btn::before {
+      content: "🌱";
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    /* 自定义选项区域 */
+    .custom-choice-area {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .custom-input {
+      flex: 2;
+      min-width: 180px;
+      padding: 12px 18px;
+      border-radius: 60px;
+      border: 1.5px solid #c0dbb0;
+      background: #fafff6;
+      font-size: 15px;
+      outline: none;
+      color: #2f4526;
+      transition: 0.15s;
+    }
+
+    .custom-input:focus {
+      border-color: #90b880;
+      box-shadow: 0 0 0 3px rgba(140, 190, 120, 0.2);
+      background: #ffffff;
+    }
+
+    .custom-submit {
+      background: #a8cc98;
+      border: none;
+      border-radius: 60px;
+      padding: 12px 22px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 6px 10px rgba(100, 140, 80, 0.2);
+      transition: 0.15s;
+      white-space: nowrap;
+      letter-spacing: 0.4px;
+      border: 1px solid #94b884;
+    }
+
+    .custom-submit:hover {
+      background: #96bc86;
+      box-shadow: 0 8px 14px rgba(90, 130, 70, 0.25);
+    }
+
+    .custom-submit:active {
+      transform: scale(0.97);
+    }
+
+    /* 存档读档栏 */
+    .save-load-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #d2e8c6;
+    }
+
+    .save-load-btn {
+      background: #f0f9ea;
+      border: 1px solid #c0dbb0;
+      border-radius: 40px;
+      padding: 8px 22px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #3e6230;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 2px 6px rgba(120, 160, 100, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-load-btn:hover {
+      background: #e2f2d8;
+      border-color: #a8c898;
+      color: #2e4a22;
+    }
+
+    .save-load-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 重置 */
+    .reset-btn {
+      background: transparent;
+      border: 1px solid #c0dbb0;
+      color: #7a9e6a;
+      margin-right: auto;
+    }
+
+    .reset-btn:hover {
+      background: #e8f6e0;
+      color: #3e6230;
+    }
+
+    /* 响应式 */
+    @media (max-width: 480px) {
+      .game-container {
+        padding: 20px 16px 26px;
+        border-radius: 32px;
+      }
+
+      .avatar-frame {
+        width: 52px;
+        height: 52px;
+      }
+
+      .avatar-img {
+        font-size: 32px;
+        line-height: 52px;
+      }
+
+      .id-value {
+        font-size: 17px;
+      }
+
+      .story-text {
+        font-size: 15px;
+      }
+
+      .choice-btn {
+        padding: 12px 18px;
+        font-size: 15px;
+      }
+
+      .custom-input {
+        padding: 10px 14px;
+      }
+
+      .custom-submit {
+        padding: 10px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- 玩家信息 -->
+    <div class="player-header">
+      <div class="avatar-frame">
+        <div class="avatar-img" id="avatarDisplay">🐻</div>
+      </div>
+      <div class="id-info">
+        <span class="id-label">妈妈 ID</span>
+        <span class="id-value" id="playerIdDisplay">@禹妈_0102</span>
+      </div>
+    </div>
+
+    <!-- 故事内容区 -->
+    <div class="story-panel">
+      <div class="story-text" id="storyText">
+        <!-- 动态填充 -->
+      </div>
+    </div>
+
+    <!-- 选项按钮区 -->
+    <div class="choices-area" id="choicesContainer">
+      <!-- 动态按钮 -->
+    </div>
+
+    <!-- 自定义选项输入框 -->
+    <div class="custom-choice-area">
+      <input type="text" class="custom-input" id="customChoiceInput" placeholder="写下你的选择... (如: 轻声说妈妈在呢)">
+      <button class="custom-submit" id="customChoiceBtn">自定义</button>
+    </div>
+
+    <!-- 存档 / 读档 / 重置 -->
+    <div class="save-load-bar">
+      <button class="save-load-btn reset-btn" id="resetBtn">🔄 重置</button>
+      <button class="save-load-btn" id="saveBtn">💾 存档</button>
+      <button class="save-load-btn" id="loadBtn">📂 读档</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- 游戏数据 ----------
+      const storyNodes = {
+        // 初始节点：0岁 出生
+        start: {
+          id: 'start',
+          text: `你成为了张泽禹的妈妈。\n\n2007年4月30日，一个健康的男婴来到这个世界。护士把他轻轻放在你怀里，他小小的手攥着你的手指，那一刻你决定要陪他好好长大。\n\n你给他取名叫泽禹，希望他像水一样温柔又有力量。`,
+          choices: [
+            { text: '轻轻哼唱一首摇篮曲', nextNode: 'lullaby' },
+            { text: '握着他的小手，告诉他“妈妈在”', nextNode: 'holdHand' },
+            { text: '仔细看看他的眉眼，像爸爸还是像你', nextNode: 'lookAtFace' }
+          ]
+        },
+        // 新增：张泽禹叫妈妈的关键节点（参考录像，奶绿温情）
+        lullaby: {
+          id: 'lullaby',
+          text: `你轻声哼起小时候外婆唱给你的歌。\n\n小泽禹眨了眨眼，竟然安静下来，睫毛上还挂着泪珠，却渐渐沉入梦乡。你的歌声成了他童年最安心的背景音。\n\n你想起那段小小的录像——他大概两三岁，坐在家里的地毯上，周围是他散落的玩具。你蹲在镜头外，轻轻唤他：“小宝，叫妈妈。”\n\n他抬起头，脸蛋圆圆软软的，眼睛弯成两道月牙，奶声奶气地喊了一声：\n\n“妈妈～”\n\n那个声音像一颗糖，化在空气里。你反复看了好多遍这段录像，每次看到这里，心都软得一塌糊涂。`,
+          choices: [
+            { text: '把这段录像好好保存，以后给他看', nextNode: 'age3_hug' },
+            { text: '抱紧他，轻轻说“妈妈在呢”', nextNode: 'age3_clap' }
+          ]
+        },
+        holdHand: {
+          id: 'holdHand',
+          text: `你握紧他的小手，在他耳边说“妈妈在”。\n\n他安静地睡着了，嘴角微微上扬。你陪着他度过无数个夜晚。\n\n你翻出手机里那段珍藏的视频——两岁多的小泽禹站在沙发上，扶着靠背，冲着镜头外的你喊：“妈妈！”尾音拖得长长的，带着东北小孩特有的敞亮。\n\n你回了一句“哎～”，他咯咯笑起来，又喊一声“妈妈”。你应一声，他再喊一声。\n\n就这样一来一回，能玩上十几分钟。那是你听过最好听的声音。`,
+          choices: [
+            { text: '把手机放下，去抱抱现在的他', nextNode: 'age2_fever' },
+            { text: '继续看着视频，眼眶有点湿', nextNode: 'age2_dad' }
+          ]
+        },
+        lookAtFace: {
+          id: 'lookAtFace',
+          text: `你仔细端详他的小脸——眉毛像爸爸，鼻子和嘴巴像你。\n\n你忍不住笑了，眼泪却掉了下来。这是你们生命的延续。\n\n你想起他三岁那年的一段录像。那天他穿着小恐龙的连体衣，在客厅里跑来跑去。你举着手机喊他：“张泽禹，看这里——”\n\n他停下来，歪着头，冲镜头露出一个缺了门牙的笑，然后张开手臂跑过来，嘴里喊着：\n\n“妈妈抱！妈妈抱！”\n\n手机晃了一下，画面里只剩下天花板和他模糊的欢叫声。但你舍不得删掉这段。`,
+          choices: [
+            { text: '关掉视频，去给他一个真实的拥抱', nextNode: 'age5_encourage' },
+            { text: '把视频分享给爸爸看', nextNode: 'age5_stay' }
+          ]
+        },
+        // 后续节点...
+        age3_hug: {
+          id: 'age3_hug',
+          text: `你抱起他，他搂住你的脖子，奶声奶气地跟着唱。\n\n“一闪一闪亮晶晶…”他咬字还不清，但笑得眼睛弯弯。\n\n他6岁了，上小学第一天，背着小书包回头对你挥手：“妈妈，我长大了！”你既骄傲又有点失落。`,
+          choices: [
+            { text: '给他拍一张入学照片', nextNode: 'age6_photo' },
+            { text: '告诉他“妈妈永远为你骄傲”', nextNode: 'age6_proud' }
+          ]
+        },
+        age3_clap: {
+          id: 'age3_clap',
+          text: `你拍手，他也学着拍，虽然节奏乱七八糟，但笑声充满了整个房间。\n\n他8岁那年，迷上了唱歌和跳舞，经常在家里开“个人演唱会”，你是他唯一的观众。`,
+          choices: [
+            { text: '为他鼓掌欢呼，说他最棒', nextNode: 'age8_cheer' },
+            { text: '录下他的表演，留作纪念', nextNode: 'age8_record' }
+          ]
+        },
+        age2_fever: {
+          id: 'age2_fever',
+          text: `你整夜没睡，不停地给他换退烧贴、量体温。天快亮时，烧终于退了。\n\n他睁开眼，虚弱地喊了一声“妈妈”，你所有疲惫都消失了。\n\n他10岁那年，在学校运动会上摔倒了，膝盖破了皮，却忍着眼泪继续跑完接力。你心疼又自豪。`,
+          choices: [
+            { text: '冲过去抱住他，为他处理伤口', nextNode: 'age10_hug' },
+            { text: '在看台上为他大声加油', nextNode: 'age10_cheer' }
+          ]
+        },
+        age2_dad: {
+          id: 'age2_dad',
+          text: `你叫醒丈夫，两人轮流守着孩子。他烧退后，你靠在丈夫肩上睡着了。\n\n一家人相互扶持，日子温暖而踏实。\n\n他12岁，即将小学毕业，拿回一张“三好学生”奖状，却犹豫地说：“妈妈，我想去试试当练习生…”`,
+          choices: [
+            { text: '认真和他聊一聊他的梦想', nextNode: 'age12_dream' },
+            { text: '先担心他的学业，劝他再想想', nextNode: 'age12_school' }
+          ]
+        },
+        age5_encourage: {
+          id: 'age5_encourage',
+          text: `你擦掉他的眼泪，说“妈妈保证第一个来接你”。\n\n他一步三回头地走进教室。下午你提前半小时等在门口，他飞奔出来抱住你。\n\n他14岁，第一次离开家去外地训练，在车站忍着眼泪对你说：“妈，我会努力的。”`,
+          choices: [
+            { text: '抱抱他，告诉他“累了就回家”', nextNode: 'age14_hug' },
+            { text: '笑着说“妈妈相信你”', nextNode: 'age14_believe' }
+          ]
+        },
+        age5_stay: {
+          id: 'age5_stay',
+          text: `你陪他在幼儿园待了一上午，他慢慢放松下来，开始和小朋友玩积木。\n\n你悄悄离开时，他正专心搭一座高塔。\n\n他15岁，进入青春期的他有时沉默寡言，但每次吃到你做的红烧肉，都会露出小时候那种满足的笑容。`,
+          choices: [
+            { text: '经常做他爱吃的菜，默默支持', nextNode: 'age15_cook' },
+            { text: '找机会和他像朋友一样聊天', nextNode: 'age15_chat' }
+          ]
+        },
+        age6_photo: {
+          id: 'age6_photo',
+          text: `你按下快门，记录下他缺了门牙的笑脸。照片至今还放在你床头。\n\n他16岁，第一次登上正式的舞台，你在台下举着灯牌，喊哑了嗓子。`,
+          choices: [
+            { text: '结束后给他一个大大的拥抱', nextNode: 'age16_hug' },
+            { text: '把他爱吃的菜都做一遍庆祝', nextNode: 'age16_meal' }
+          ]
+        },
+        age6_proud: {
+          id: 'age6_proud',
+          text: `他听到你的话，眼睛亮晶晶的，大声说“我会好好学习的！”\n\n他17岁，即将高考，却依然坚持练习。你看着他熬夜复习，心里既心疼又骄傲。`,
+          choices: [
+            { text: '每晚给他热一杯牛奶', nextNode: 'age17_milk' },
+            { text: '告诉他“无论结果如何，妈妈都爱你”', nextNode: 'age17_love' }
+          ]
+        },
+        age8_cheer: {
+          id: 'age8_cheer',
+          text: `你大声叫好，他唱得更起劲了。\n\n后来他真的走上了舞台，每一次演出，你都在台下为他用力鼓掌。`,
+          choices: [
+            { text: '继续做他最忠实的观众', nextNode: 'final_grown' }
+          ]
+        },
+        age8_record: {
+          id: 'age8_record',
+          text: `你录下他稚嫩的歌声，偶尔拿出来看，他都会不好意思地笑。\n\n这些影像成了你们最珍贵的记忆。`,
+          choices: [
+            { text: '把这些视频好好保存', nextNode: 'final_grown' }
+          ]
+        },
+        age10_hug: {
+          id: 'age10_hug',
+          text: `你跑过去，他扑进你怀里，终于哭了出来。你一边给他消毒一边说“你已经很棒了”。\n\n他18岁，即将远行去读大学，在机场转身抱了抱你：“妈，我会想你的。”`,
+          choices: [
+            { text: '拍拍他的背，让他放心去飞', nextNode: 'final_grown' },
+            { text: '忍住眼泪，笑着说“常打电话”', nextNode: 'final_grown' }
+          ]
+        },
+        age10_cheer: {
+          id: 'age10_cheer',
+          text: `你在看台上喊“张泽禹，好样的！”他听到后，冲你挥了挥手，跑得更快了。\n\n他长成了阳光少年，而你一直是他最坚强的后盾。`,
+          choices: [
+            { text: '把这份支持一直延续下去', nextNode: 'final_grown' }
+          ]
+        },
+        age12_dream: {
+          id: 'age12_dream',
+          text: `你和他聊了很久，他说他喜欢舞台，但也不想放弃学业。你们约定一起努力，找到平衡。\n\n后来他考上了理想的学校，也一步步靠近梦想。`,
+          choices: [
+            { text: '为他每一个决定加油', nextNode: 'final_grown' }
+          ]
+        },
+        age12_school: {
+          id: 'age12_school',
+          text: `你表达了对学业的担忧，他沉默了一会儿，说“妈妈，我明白”。他最终选择先专注学业，但心里一直保留着那份热爱。\n\n你看着他成熟的样子，有些心疼，但也尊重他的选择。`,
+          choices: [
+            { text: '告诉他“妈妈永远支持你”', nextNode: 'final_grown' }
+          ]
+        },
+        age14_hug: {
+          id: 'age14_hug',
+          text: `他吸了吸鼻子，说“知道了”。火车开动时，他隔着车窗使劲挥手。\n\n你看着他远去的背影，知道雏鹰终要飞翔。`,
+          choices: [
+            { text: '开始习惯等待他的电话', nextNode: 'final_grown' }
+          ]
+        },
+        age14_believe: {
+          id: 'age14_believe',
+          text: `他用力点头，转身走进站台。你相信他一定能行。\n\n后来他每次回家，都会给你带当地的小吃，和你分享训练中的趣事。`,
+          choices: [
+            { text: '珍藏他每一次成长的痕迹', nextNode: 'final_grown' }
+          ]
+        },
+        age15_cook: {
+          id: 'age15_cook',
+          text: `你默默做着他爱吃的菜，他吃得开心，话也多了起来。\n\n你们的关系没有因为青春期而疏远，这让你很欣慰。`,
+          choices: [
+            { text: '继续用美食传递爱', nextNode: 'final_grown' }
+          ]
+        },
+        age15_chat: {
+          id: 'age15_chat',
+          text: `你找了一个轻松的时机，和他像朋友一样聊天。他慢慢敞开心扉，和你聊起学校的事、未来的想法。\n\n你发现他真的长大了。`,
+          choices: [
+            { text: '做他永远的朋友', nextNode: 'final_grown' }
+          ]
+        },
+        age16_hug: {
+          id: 'age16_hug',
+          text: `他在你怀里喘着气说“妈，我做到了”。你热泪盈眶。\n\n从那时起，他一步步走向更大的舞台，而你始终在他身后。`,
+          choices: [
+            { text: '继续陪他走过每一个重要时刻', nextNode: 'final_grown' }
+          ]
+        },
+        age16_meal: {
+          id: 'age16_meal',
+          text: `他吃得特别香，说“还是妈妈做的菜最好吃”。\n\n这句话，比任何奖赏都珍贵。`,
+          choices: [
+            { text: '把这份爱一直做进菜里', nextNode: 'final_grown' }
+          ]
+        },
+        age17_milk: {
+          id: 'age17_milk',
+          text: `每晚你端着热牛奶走进他房间，他抬头对你笑笑。\n\n那份无声的陪伴，给了他莫大的力量。`,
+          choices: [
+            { text: '继续默默守护他', nextNode: 'final_grown' }
+          ]
+        },
+        age17_love: {
+          id: 'age17_love',
+          text: `他听到这句话，眼圈红了。他说“妈妈，谢谢你”。\n\n高考他发挥稳定，去了想去的城市。送别时你们拥抱了很久。`,
+          choices: [
+            { text: '放手让他去闯，等他回家', nextNode: 'final_grown' }
+          ]
+        },
+        final_grown: {
+          id: 'final_grown',
+          text: `时光荏苒，张泽禹已经长大成人。\n\n他实现了自己的梦想，也依然是你心里那个攥着你手指的小男孩。\n\n这一路，你陪他经历了无数个重要时刻。而你明白，爱不是捆绑，是目送。\n\n“妈妈，谢谢你陪我长大。”\n\n—— 全剧终 · 但爱没有终点 ——`,
+          choices: []
+        }
+      };
+
+      // 当前状态
+      let currentNodeId = 'start';
+      let playerId = '@禹妈_0102';
+      let avatarContent = '🐻';
+
+      // 存档对象
+      let savedGame = null;
+
+      // DOM元素
+      const storyTextEl = document.getElementById('storyText');
+      const choicesContainer = document.getElementById('choicesContainer');
+      const customChoiceInput = document.getElementById('customChoiceInput');
+      const customChoiceBtn = document.getElementById('customChoiceBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const loadBtn = document.getElementById('loadBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const playerIdDisplay = document.getElementById('playerIdDisplay');
+      const avatarDisplay = document.getElementById('avatarDisplay');
+
+      // ---------- 渲染函数 ----------
+      function render() {
+        playerIdDisplay.textContent = playerId;
+        if (avatarContent.startsWith('http') || avatarContent.startsWith('data:image')) {
+          avatarDisplay.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = avatarContent;
+          img.className = 'avatar-img';
+          img.alt = '头像';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          avatarDisplay.appendChild(img);
+        } else {
+          avatarDisplay.textContent = avatarContent;
+        }
+
+        const node = storyNodes[currentNodeId];
+        if (!node) {
+          storyTextEl.innerHTML = `<p>故事节点不存在，即将重置…</p>`;
+          setTimeout(() => { currentNodeId = 'start'; render(); }, 1000);
+          return;
+        }
+
+        const paragraphs = node.text.split('\n').filter(p => p.trim() !== '');
+        storyTextEl.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+
+        choicesContainer.innerHTML = '';
+        if (node.choices && node.choices.length > 0) {
+          node.choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.textContent = choice.text;
+            btn.addEventListener('click', () => {
+              if (choice.nextNode && storyNodes[choice.nextNode]) {
+                currentNodeId = choice.nextNode;
+                render();
+              } else {
+                if (storyNodes.final_grown) {
+                  currentNodeId = 'final_grown';
+                  render();
+                }
+              }
+            });
+            choicesContainer.appendChild(btn);
+          });
+        } else {
+          const restartBtn = document.createElement('button');
+          restartBtn.className = 'choice-btn';
+          restartBtn.textContent = '重新开始';
+          restartBtn.addEventListener('click', () => {
+            resetGame();
+          });
+          choicesContainer.appendChild(restartBtn);
+        }
+      }
+
+      // ---------- 核心：参考内容生成自定义回复 ----------
+      function generateCustomResponse(customText) {
+        const node = storyNodes[currentNodeId];
+        const currentText = node ? node.text : '';
+        const customLower = customText.toLowerCase();
+
+        // 判断当前故事阶段，生成贴合语境的回应
+        let response = '';
+
+        // 婴儿/幼儿阶段（包含“妈妈”“叫”“录像”等关键词，或节点名含start/age3/age5等）
+        const isEarlyStage = currentNodeId === 'start' ||
+                             currentNodeId === 'lullaby' ||
+                             currentNodeId === 'holdHand' ||
+                             currentNodeId === 'lookAtFace' ||
+                             currentNodeId.includes('age3') ||
+                             currentNodeId.includes('age5');
+
+        // 如果用户自定义内容涉及“叫妈妈”“喊妈妈”“录像”等，参考真实录像温情回应
+        if (customLower.includes('叫妈妈') || customLower.includes('喊妈妈') ||
+            customLower.includes('妈妈') && (customLower.includes('叫') || customLower.includes('喊') || customLower.includes('录'))) {
+          response = `你对着他，轻轻唤了一声：“小宝，叫妈妈。”\n\n` +
+                     `他歪着头看你，圆圆的脸上露出一个软乎乎的笑，张开嘴，奶声奶气地喊了一声：\n\n` +
+                     `“妈妈～”\n\n` +
+                     `尾音拖得长长的，像小时候录像里那样。你眼眶一热，把他抱进怀里，轻声应了一句：“哎，妈妈在呢。”`;
+        } 
+        // 早期阶段的其他自定义
+        else if (isEarlyStage) {
+          if (customLower.includes('抱') || customLower.includes('亲') || customLower.includes('抚摸')) {
+            response = `你轻轻把他搂进怀里，动作放得极轻，像是怕惊扰了这一刻的安宁。\n\n` +
+                       `小泽禹在你臂弯里蹭了蹭，找了个舒服的姿势，小手无意识地攥住你的衣角，呼吸慢慢变得绵长。\n\n` +
+                       `你低头看着他长长的睫毛，心里被一种柔软的、胀胀的东西填满了。`;
+          } else if (customLower.includes('唱') || customLower.includes('歌')) {
+            response = `你哼起一段熟悉的调子。\n\n` +
+                       `他的眼睛亮了一下，跟着你的声音轻轻晃脑袋，嘴里发出含含糊糊的“啊啊”声，像在努力跟上你的旋律。\n\n` +
+                       `你笑了，心想：这孩子，以后说不定真能唱。`;
+          } else if (customLower.includes('拍') || customLower.includes('照') || customLower.includes('录') || customLower.includes('视频')) {
+            response = `你举起手机，对准他。\n\n` +
+                       `镜头里的小泽禹正专心致志地玩着自己的脚趾，察觉到你在拍他，抬起头，冲着镜头咧嘴一笑，露出几颗小小的乳牙。\n\n` +
+                       `你按下录制键，舍不得眨眼。你知道，这样的瞬间，一辈子只有一次。`;
+          } else {
+            response = `你${customText}。\n\n` +
+                       `小泽禹安静地看着你，似乎还不完全明白，但那双干净的眼睛里映着你的影子。\n\n` +
+                       `你陪在他身边，每一个微小的动作，都是爱最具体的形状。`;
+          }
+        }
+        // 学龄/少年阶段（age6 - age14）
+        else if (currentNodeId.includes('age6') || currentNodeId.includes('age8') ||
+                 currentNodeId.includes('age10') || currentNodeId.includes('age12') ||
+                 currentNodeId.includes('age14')) {
+          if (customLower.includes('抱') || customLower.includes('鼓励') || customLower.includes('安慰')) {
+            response = `你把他拉到身边，拍了拍他的肩膀。\n\n` +
+                       `他已经不像小时候那样整个人扑进你怀里了，只是微微靠过来，肩膀贴着你的手臂。\n\n` +
+                       `但你感觉得到，他放松了一点。`;
+          } else if (customLower.includes('哭') || customLower.includes('心疼')) {
+            response = `你鼻子一酸，但还是忍住了。\n\n` +
+                       `你看着他——这个已经能自己扛住一些事的少年，心里又骄傲又舍不得。\n\n` +
+                       `你只是轻轻说了一句：“妈妈在呢。”他点点头，没说话，但你看到他耳朵尖红了。`;
+          } else if (customLower.includes('梦') || customLower.includes('舞台') || customLower.includes('唱')) {
+            response = `你认真听他说完，然后点了点头。\n\n` +
+                       `“你想做的事，妈妈都支持。但要记住，不管飞多高，家永远在这里。”\n\n` +
+                       `他笑了，眼睛弯成小时候那个样子，说：“知道啦，妈。”`;
+          } else {
+            response = `你${customText}。\n\n` +
+                       `他沉默了两秒，然后点了点头。你已经学会从他的沉默里读懂很多东西——他不是不开心，只是在长大。\n\n` +
+                       `你拍拍他的背，决定给他一点空间，也给他随时可以回来的底气。`;
+          }
+        }
+        // 青春/成年阶段
+        else if (currentNodeId.includes('age15') || currentNodeId.includes('age16') ||
+                 currentNodeId.includes('age17') || currentNodeId.includes('final')) {
+          if (customLower.includes('回家') || customLower.includes('累') || customLower.includes('休息')) {
+            response = `你看着他的眼睛，认真地说：“累了就回家，妈妈给你做红烧肉。”\n\n` +
+                       `他愣了一下，然后笑了，眼眶有点红，嘴上却说：“妈，你又来了。”\n\n` +
+                       `你知道他听懂了。`;
+          } else if (customLower.includes('骄傲') || customLower.includes('爱你') || customLower.includes('支持')) {
+            response = `你说完这句话，他别过头去，喉结动了动。\n\n` +
+                       `过了几秒，他转回来，声音闷闷的：“知道了。”\n\n` +
+                       `但你看到他偷偷用袖子蹭了一下眼角。这小孩，从小到大都这样，嘴硬心软。`;
+          } else {
+            response = `你${customText}。\n\n` +
+                       `他认真听完，点了点头。你们之间的对话越来越像大人了，但你偶尔还能从他眉眼里看到那个攥着你手指的小婴儿。\n\n` +
+                       `你心想：不管他多大，在你这里，永远可以做一个小孩。`;
+          }
+        }
+        // 兜底
+        else {
+          response = `你${customText}。\n\n` +
+                     `张泽禹安静地听着，过了一会儿，他轻轻说了声“嗯”。\n\n` +
+                     `你知道，他收到了。`;
+        }
+
+        return response;
+      }
+
+      // ---------- 自定义选项处理 ----------
+      function handleCustomChoice() {
+        const customText = customChoiceInput.value.trim();
+        if (!customText) {
+          alert('请先输入你的选择～');
+          return;
+        }
+
+        const node = storyNodes[currentNodeId];
+
+        // 生成贴合当前内容的回复文本
+        const responseText = generateCustomResponse(customText);
+
+        const customNodeId = `custom_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+        
+        let nextAfterCustom = 'final_grown';
+        if (node && node.choices && node.choices.length > 0) {
+          nextAfterCustom = node.choices[0].nextNode || 'final_grown';
+        }
+
+        // 将用户输入和生成的回复整合
+        const fullText = `【你的选择】${customText}\n\n${responseText}`;
+
+        const tempNode = {
+          id: customNodeId,
+          text: fullText,
+          choices: [
+            { text: '继续', nextNode: nextAfterCustom }
+          ]
+        };
+        storyNodes[customNodeId] = tempNode;
+        
+        currentNodeId = customNodeId;
+        render();
+        customChoiceInput.value = '';
+      }
+
+      // ---------- 重置游戏 ----------
+      function resetGame() {
+        for (let key in storyNodes) {
+          if (key.startsWith('custom_')) {
+            delete storyNodes[key];
+          }
+        }
+        currentNodeId = 'start';
+        customChoiceInput.value = '';
+        render();
+      }
+
+      // ---------- 存档 & 读档 ----------
+      function saveGame() {
+        const state = {
+          currentNodeId: currentNodeId,
+          playerId: playerId,
+          avatarContent: avatarContent,
+        };
+        savedGame = JSON.parse(JSON.stringify(state));
+        try {
+          localStorage.setItem('peiyu_save', JSON.stringify(state));
+        } catch (e) {}
+        alert('💾 存档成功！');
+      }
+
+      function loadGame() {
+        let loadedState = savedGame;
+        if (!loadedState) {
+          const stored = localStorage.getItem('peiyu_save');
+          if (stored) {
+            try {
+              loadedState = JSON.parse(stored);
+              savedGame = loadedState;
+            } catch (e) {}
+          }
+        }
+        if (!loadedState) {
+          alert('没有找到存档～');
+          return;
+        }
+
+        if (loadedState.currentNodeId && storyNodes[loadedState.currentNodeId]) {
+          currentNodeId = loadedState.currentNodeId;
+        } else {
+          currentNodeId = 'start';
+        }
+        if (loadedState.playerId) playerId = loadedState.playerId;
+        if (loadedState.avatarContent) avatarContent = loadedState.avatarContent;
+
+        render();
+        alert('📂 读档成功！');
+      }
+
+      // ---------- 初始化 ----------
+      function init() {
+        customChoiceBtn.addEventListener('click', handleCustomChoice);
+        customChoiceInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleCustomChoice();
+          }
+        });
+
+        saveBtn.addEventListener('click', saveGame);
+        loadBtn.addEventListener('click', loadGame);
+        resetBtn.addEventListener('click', () => {
+          if (confirm('确定要重置故事吗？当前进度将丢失。')) {
+            resetGame();
+          }
+        });
+
+        try {
+          const stored = localStorage.getItem('peiyu_save');
+          if (stored) {
+            const state = JSON.parse(stored);
+            if (state.playerId) playerId = state.playerId;
+            if (state.avatarContent) avatarContent = state.avatarContent;
+            if (state.currentNodeId && storyNodes[state.currentNodeId]) {
+              currentNodeId = state.currentNodeId;
+            }
+            savedGame = state;
+          }
+        } catch (e) {}
+
+        render();
+      }
+
+      init();
+
+      window.setPlayerId = (newId) => { playerId = newId; render(); };
+      window.setAvatar = (newAvatar) => { avatarContent = newAvatar; render(); };
+    })();
+  </script>
+</body>
+</html>
