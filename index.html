@@ -12,7 +12,6 @@
     }
 
     body {
-      /* 清新的奶绿色基调 */
       background: linear-gradient(145deg, #d8f0d0 0%, #c2e8b8 100%);
       min-height: 100vh;
       display: flex;
@@ -25,7 +24,6 @@
     .game-container {
       max-width: 700px;
       width: 100%;
-      /* 奶白偏绿的半透明卡片 */
       background: rgba(248, 255, 242, 0.88);
       backdrop-filter: blur(12px);
       border-radius: 42px;
@@ -35,7 +33,7 @@
       transition: all 0.2s;
     }
 
-    /* 头部 ID + 头像 — 奶绿调 */
+    /* 头部 ID + 头像 */
     .player-header {
       display: flex;
       align-items: center;
@@ -60,6 +58,33 @@
       border: 3px solid #ffffff;
       overflow: hidden;
       flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      transition: 0.15s;
+    }
+
+    .avatar-frame:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(100, 140, 80, 0.3);
+    }
+
+    .avatar-frame::after {
+      content: "✎";
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 22px;
+      height: 22px;
+      background: #a8cc98;
+      color: white;
+      border-radius: 50%;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      pointer-events: none;
     }
 
     .avatar-img {
@@ -78,6 +103,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
 
     .id-label {
@@ -88,6 +114,14 @@
       font-weight: 500;
     }
 
+    .id-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
     .id-value {
       font-size: 20px;
       font-weight: 700;
@@ -96,13 +130,36 @@
       padding: 2px 12px;
       border-radius: 40px;
       display: inline-block;
-      align-self: flex-start;
-      margin-top: 4px;
       border: 1px solid #c8e0b8;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    /* 故事区域 — 奶白绿 */
+    .edit-id-btn {
+      background: transparent;
+      border: 1px solid #c8e0b8;
+      color: #5e8a4a;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.15s;
+      flex-shrink: 0;
+    }
+
+    .edit-id-btn:hover {
+      background: #d4ecc8;
+      color: #2e4a22;
+    }
+
+    /* 故事区域 */
     .story-panel {
       background: #fbfff7;
       border-radius: 32px;
@@ -134,7 +191,7 @@
       margin-bottom: 0;
     }
 
-    /* 选项按钮 — 奶绿 */
+    /* 选项按钮 */
     .choices-area {
       display: flex;
       flex-direction: column;
@@ -265,7 +322,6 @@
       transform: scale(0.96);
     }
 
-    /* 重置 */
     .reset-btn {
       background: transparent;
       border: 1px solid #c0dbb0;
@@ -278,7 +334,6 @@
       color: #3e6230;
     }
 
-    /* 响应式 */
     @media (max-width: 480px) {
       .game-container {
         padding: 20px 16px 26px;
@@ -322,26 +377,25 @@
   <div class="game-container">
     <!-- 玩家信息 -->
     <div class="player-header">
-      <div class="avatar-frame">
+      <div class="avatar-frame" id="avatarFrame" title="点击修改头像">
         <div class="avatar-img" id="avatarDisplay">🐻</div>
       </div>
       <div class="id-info">
         <span class="id-label">妈妈 ID</span>
-        <span class="id-value" id="playerIdDisplay">@禹妈_0102</span>
+        <div class="id-row">
+          <span class="id-value" id="playerIdDisplay">@禹妈_0102</span>
+          <button class="edit-id-btn" id="editIdBtn" title="修改ID">✏️</button>
+        </div>
       </div>
     </div>
 
     <!-- 故事内容区 -->
     <div class="story-panel">
-      <div class="story-text" id="storyText">
-        <!-- 动态填充 -->
-      </div>
+      <div class="story-text" id="storyText"></div>
     </div>
 
     <!-- 选项按钮区 -->
-    <div class="choices-area" id="choicesContainer">
-      <!-- 动态按钮 -->
-    </div>
+    <div class="choices-area" id="choicesContainer"></div>
 
     <!-- 自定义选项输入框 -->
     <div class="custom-choice-area">
@@ -361,7 +415,6 @@
     (function() {
       // ---------- 游戏数据 ----------
       const storyNodes = {
-        // 初始节点：0岁 出生
         start: {
           id: 'start',
           text: `你成为了张泽禹的妈妈。\n\n2007年4月30日，一个健康的男婴来到这个世界。护士把他轻轻放在你怀里，他小小的手攥着你的手指，那一刻你决定要陪他好好长大。\n\n你给他取名叫泽禹，希望他像水一样温柔又有力量。`,
@@ -371,7 +424,6 @@
             { text: '仔细看看他的眉眼，像爸爸还是像你', nextNode: 'lookAtFace' }
           ]
         },
-        // 新增：张泽禹叫妈妈的关键节点（参考录像，奶绿温情）
         lullaby: {
           id: 'lullaby',
           text: `你轻声哼起小时候外婆唱给你的歌。\n\n小泽禹眨了眨眼，竟然安静下来，睫毛上还挂着泪珠，却渐渐沉入梦乡。你的歌声成了他童年最安心的背景音。\n\n你想起那段小小的录像——他大概两三岁，坐在家里的地毯上，周围是他散落的玩具。你蹲在镜头外，轻轻唤他：“小宝，叫妈妈。”\n\n他抬起头，脸蛋圆圆软软的，眼睛弯成两道月牙，奶声奶气地喊了一声：\n\n“妈妈～”\n\n那个声音像一颗糖，化在空气里。你反复看了好多遍这段录像，每次看到这里，心都软得一塌糊涂。`,
@@ -396,7 +448,6 @@
             { text: '把视频分享给爸爸看', nextNode: 'age5_stay' }
           ]
         },
-        // 后续节点...
         age3_hug: {
           id: 'age3_hug',
           text: `你抱起他，他搂住你的脖子，奶声奶气地跟着唱。\n\n“一闪一闪亮晶晶…”他咬字还不清，但笑得眼睛弯弯。\n\n他6岁了，上小学第一天，背着小书包回头对你挥手：“妈妈，我长大了！”你既骄傲又有点失落。`,
@@ -567,10 +618,20 @@
         }
       };
 
-      // 当前状态
+      // 当前状态（从本地存储读取，实现持久化）
       let currentNodeId = 'start';
       let playerId = '@禹妈_0102';
       let avatarContent = '🐻';
+
+      // 从 localStorage 读取上次的 ID 和头像
+      try {
+        const savedId = localStorage.getItem('peiyu_player_id');
+        if (savedId) playerId = savedId;
+        const savedAvatar = localStorage.getItem('peiyu_avatar');
+        if (savedAvatar) avatarContent = savedAvatar;
+        const savedNode = localStorage.getItem('peiyu_current_node');
+        if (savedNode && storyNodes[savedNode]) currentNodeId = savedNode;
+      } catch (e) {}
 
       // 存档对象
       let savedGame = null;
@@ -585,10 +646,13 @@
       const resetBtn = document.getElementById('resetBtn');
       const playerIdDisplay = document.getElementById('playerIdDisplay');
       const avatarDisplay = document.getElementById('avatarDisplay');
+      const avatarFrame = document.getElementById('avatarFrame');
+      const editIdBtn = document.getElementById('editIdBtn');
 
       // ---------- 渲染函数 ----------
       function render() {
         playerIdDisplay.textContent = playerId;
+
         if (avatarContent.startsWith('http') || avatarContent.startsWith('data:image')) {
           avatarDisplay.innerHTML = '';
           const img = document.createElement('img');
@@ -622,10 +686,12 @@
             btn.addEventListener('click', () => {
               if (choice.nextNode && storyNodes[choice.nextNode]) {
                 currentNodeId = choice.nextNode;
+                try { localStorage.setItem('peiyu_current_node', currentNodeId); } catch (e) {}
                 render();
               } else {
                 if (storyNodes.final_grown) {
                   currentNodeId = 'final_grown';
+                  try { localStorage.setItem('peiyu_current_node', currentNodeId); } catch (e) {}
                   render();
                 }
               }
@@ -643,16 +709,44 @@
         }
       }
 
-      // ---------- 核心：参考内容生成自定义回复 ----------
+      // ---------- 修改 ID 功能 ----------
+      function editPlayerId() {
+        const newId = prompt('请输入新的妈妈 ID：', playerId);
+        if (newId === null) return; // 取消
+        const trimmed = newId.trim();
+        if (!trimmed) {
+          alert('ID 不能为空哦～');
+          return;
+        }
+        playerId = trimmed;
+        try { localStorage.setItem('peiyu_player_id', playerId); } catch (e) {}
+        render();
+      }
+
+      // ---------- 修改头像功能 ----------
+      function editAvatar() {
+        const newAvatar = prompt(
+          '请输入新的头像（可以是一个 emoji，比如 🐼🌸，也可以粘贴图片链接）：',
+          avatarContent
+        );
+        if (newAvatar === null) return;
+        const trimmed = newAvatar.trim();
+        if (!trimmed) {
+          alert('头像不能为空哦～');
+          return;
+        }
+        avatarContent = trimmed;
+        try { localStorage.setItem('peiyu_avatar', avatarContent); } catch (e) {}
+        render();
+      }
+
+      // ---------- 自定义选项（参考内容智能回复）----------
       function generateCustomResponse(customText) {
         const node = storyNodes[currentNodeId];
-        const currentText = node ? node.text : '';
         const customLower = customText.toLowerCase();
 
-        // 判断当前故事阶段，生成贴合语境的回应
         let response = '';
 
-        // 婴儿/幼儿阶段（包含“妈妈”“叫”“录像”等关键词，或节点名含start/age3/age5等）
         const isEarlyStage = currentNodeId === 'start' ||
                              currentNodeId === 'lullaby' ||
                              currentNodeId === 'holdHand' ||
@@ -660,15 +754,13 @@
                              currentNodeId.includes('age3') ||
                              currentNodeId.includes('age5');
 
-        // 如果用户自定义内容涉及“叫妈妈”“喊妈妈”“录像”等，参考真实录像温情回应
         if (customLower.includes('叫妈妈') || customLower.includes('喊妈妈') ||
-            customLower.includes('妈妈') && (customLower.includes('叫') || customLower.includes('喊') || customLower.includes('录'))) {
+            (customLower.includes('妈妈') && (customLower.includes('叫') || customLower.includes('喊') || customLower.includes('录')))) {
           response = `你对着他，轻轻唤了一声：“小宝，叫妈妈。”\n\n` +
                      `他歪着头看你，圆圆的脸上露出一个软乎乎的笑，张开嘴，奶声奶气地喊了一声：\n\n` +
                      `“妈妈～”\n\n` +
                      `尾音拖得长长的，像小时候录像里那样。你眼眶一热，把他抱进怀里，轻声应了一句：“哎，妈妈在呢。”`;
         } 
-        // 早期阶段的其他自定义
         else if (isEarlyStage) {
           if (customLower.includes('抱') || customLower.includes('亲') || customLower.includes('抚摸')) {
             response = `你轻轻把他搂进怀里，动作放得极轻，像是怕惊扰了这一刻的安宁。\n\n` +
@@ -688,7 +780,6 @@
                        `你陪在他身边，每一个微小的动作，都是爱最具体的形状。`;
           }
         }
-        // 学龄/少年阶段（age6 - age14）
         else if (currentNodeId.includes('age6') || currentNodeId.includes('age8') ||
                  currentNodeId.includes('age10') || currentNodeId.includes('age12') ||
                  currentNodeId.includes('age14')) {
@@ -710,7 +801,6 @@
                        `你拍拍他的背，决定给他一点空间，也给他随时可以回来的底气。`;
           }
         }
-        // 青春/成年阶段
         else if (currentNodeId.includes('age15') || currentNodeId.includes('age16') ||
                  currentNodeId.includes('age17') || currentNodeId.includes('final')) {
           if (customLower.includes('回家') || customLower.includes('累') || customLower.includes('休息')) {
@@ -727,7 +817,6 @@
                        `你心想：不管他多大，在你这里，永远可以做一个小孩。`;
           }
         }
-        // 兜底
         else {
           response = `你${customText}。\n\n` +
                      `张泽禹安静地听着，过了一会儿，他轻轻说了声“嗯”。\n\n` +
@@ -737,7 +826,6 @@
         return response;
       }
 
-      // ---------- 自定义选项处理 ----------
       function handleCustomChoice() {
         const customText = customChoiceInput.value.trim();
         if (!customText) {
@@ -746,8 +834,6 @@
         }
 
         const node = storyNodes[currentNodeId];
-
-        // 生成贴合当前内容的回复文本
         const responseText = generateCustomResponse(customText);
 
         const customNodeId = `custom_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
@@ -757,7 +843,6 @@
           nextAfterCustom = node.choices[0].nextNode || 'final_grown';
         }
 
-        // 将用户输入和生成的回复整合
         const fullText = `【你的选择】${customText}\n\n${responseText}`;
 
         const tempNode = {
@@ -770,11 +855,12 @@
         storyNodes[customNodeId] = tempNode;
         
         currentNodeId = customNodeId;
+        try { localStorage.setItem('peiyu_current_node', currentNodeId); } catch (e) {}
         render();
         customChoiceInput.value = '';
       }
 
-      // ---------- 重置游戏 ----------
+      // ---------- 重置 ----------
       function resetGame() {
         for (let key in storyNodes) {
           if (key.startsWith('custom_')) {
@@ -783,6 +869,7 @@
         }
         currentNodeId = 'start';
         customChoiceInput.value = '';
+        try { localStorage.setItem('peiyu_current_node', currentNodeId); } catch (e) {}
         render();
       }
 
@@ -824,12 +911,20 @@
         if (loadedState.playerId) playerId = loadedState.playerId;
         if (loadedState.avatarContent) avatarContent = loadedState.avatarContent;
 
+        // 同步到本地存储
+        try {
+          localStorage.setItem('peiyu_current_node', currentNodeId);
+          localStorage.setItem('peiyu_player_id', playerId);
+          localStorage.setItem('peiyu_avatar', avatarContent);
+        } catch (e) {}
+
         render();
         alert('📂 读档成功！');
       }
 
       // ---------- 初始化 ----------
       function init() {
+        // 自定义选项按钮
         customChoiceBtn.addEventListener('click', handleCustomChoice);
         customChoiceInput.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
@@ -838,6 +933,11 @@
           }
         });
 
+        // 修改 ID / 头像
+        editIdBtn.addEventListener('click', editPlayerId);
+        avatarFrame.addEventListener('click', editAvatar);
+
+        // 存档读档重置
         saveBtn.addEventListener('click', saveGame);
         loadBtn.addEventListener('click', loadGame);
         resetBtn.addEventListener('click', () => {
@@ -846,26 +946,15 @@
           }
         });
 
-        try {
-          const stored = localStorage.getItem('peiyu_save');
-          if (stored) {
-            const state = JSON.parse(stored);
-            if (state.playerId) playerId = state.playerId;
-            if (state.avatarContent) avatarContent = state.avatarContent;
-            if (state.currentNodeId && storyNodes[state.currentNodeId]) {
-              currentNodeId = state.currentNodeId;
-            }
-            savedGame = state;
-          }
-        } catch (e) {}
-
+        // 初始渲染
         render();
       }
 
       init();
 
-      window.setPlayerId = (newId) => { playerId = newId; render(); };
-      window.setAvatar = (newAvatar) => { avatarContent = newAvatar; render(); };
+      // 全局方法（可选）
+      window.setPlayerId = (newId) => { playerId = newId; localStorage.setItem('peiyu_player_id', playerId); render(); };
+      window.setAvatar = (newAvatar) => { avatarContent = newAvatar; localStorage.setItem('peiyu_avatar', avatarContent); render(); };
     })();
   </script>
 </body>
